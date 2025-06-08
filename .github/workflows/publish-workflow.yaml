@@ -58,7 +58,7 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --environment ${{ env.CONTAINER_APP_ENV }} \
             --image ${{ env.ACR_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }} \
-            --target-port 80 \
+            --target-port 8080 \
             --ingress external \
             --registry-server ${{ env.ACR_LOGIN_SERVER }} \
             --registry-username ${{ secrets.AZURE_REGISTRY_USERNAME }} \
