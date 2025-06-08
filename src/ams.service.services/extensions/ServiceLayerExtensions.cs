@@ -2,7 +2,7 @@
 
 public static class ServiceLayerExtensions
 {
-    public static void ComposeRepositories(this IServiceCollection services)
+    public static void ComposeApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IUserService, UserService>();

@@ -14,7 +14,8 @@ public static class RepositoryLayerExtensions
 
         services.AddDbContext<AuthDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("AmsDbConnection"),
+            var connectionString = configuration.GetConnectionString("AmsDbConnection");
+            options.UseSqlServer(connectionString,
             sqlOptions => sqlOptions.MigrationsAssembly(typeof(AuthDbContext).Assembly.GetName().Name));
         });
     }

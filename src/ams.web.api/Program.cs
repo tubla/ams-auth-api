@@ -77,11 +77,9 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 app.UseMiddleware<RbacMiddleware>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
