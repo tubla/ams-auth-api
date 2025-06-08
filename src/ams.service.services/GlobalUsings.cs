@@ -1,0 +1,9 @@
+﻿global using ams.service.models;
+global using ams.service.repositories;
+global using Mapster;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.IdentityModel.Tokens;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Security.Claims;
+global using System.Text;

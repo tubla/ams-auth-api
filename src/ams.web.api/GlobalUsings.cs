@@ -1,0 +1,11 @@
+﻿global using ams.service.models;
+global using ams.service.repositories;
+global using ams.service.services;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Identity.Data;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.OpenApi.Models;
+global using System.Security.Claims;
+global using System.Text;
