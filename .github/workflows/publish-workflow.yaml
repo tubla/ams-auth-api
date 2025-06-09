@@ -94,4 +94,4 @@ jobs:
 
       - name: Apply EF Core Migrations
         run: |
-          dotnet ef database update --project ams.service.repositories --startup-project ams.web.api
+          dotnet ef database update --project src/ams.service.repositories --startup-project src/ams.web.api
