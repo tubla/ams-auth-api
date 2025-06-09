@@ -91,12 +91,3 @@ jobs:
           environmentVariables: |
             ConnectionStrings__DefaultConnection=${{ secrets.DATABASE_CONNECTION_STRING }}
             ASPNETCORE_ENVIRONMENT=Development
-
-      - name: Restart Container App to Apply Changes
-        run: |
-          sleep 10
-          az containerapp restart \
-            --name ${{ env.CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            || echo "Restart failed, deployment may still succeed"
-        continue-on-error: true
