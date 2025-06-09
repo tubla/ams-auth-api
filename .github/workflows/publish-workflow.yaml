@@ -43,26 +43,30 @@ jobs:
           username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
+      - name: Assign User Managed Identity to Container App
+        run: |
+          az containerapp identity assign \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --user-assigned ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
+
+      - name: Assign Role to Managed Identity
+        run: |
+          az role assignment create \
+            --assignee ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
+            --role "Contributor" \
+            --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}
+
+      - name: Restart Container App to Apply Identity Changes
+        run: |
+          az containerapp restart --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+
       - name: Build and Push Container Image to ACR
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ env.ACR_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
           file: src/ams.web.api/Dockerfile
-
-      - name: Provision Azure Container App (if not existing)
-        run: |
-          az containerapp env create --name ${{ env.CONTAINER_APP_ENV }} --resource-group ${{ env.RESOURCE_GROUP }} --location eastus || true
-          az containerapp create \
-            --name ${{ env.CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --environment ${{ env.CONTAINER_APP_ENV }} \
-            --image ${{ env.ACR_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }} \
-            --target-port 8080 \
-            --ingress external \
-            --registry-server ${{ env.ACR_LOGIN_SERVER }} \
-            --registry-username ${{ secrets.AZURE_REGISTRY_USERNAME }} \
-            --registry-password ${{ secrets.AZURE_REGISTRY_PASSWORD }} || true
 
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
@@ -72,22 +76,6 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           environmentVariables: |
             ASPNETCORE_ENVIRONMENT=Development
-
-      - name: Assign User Managed Identity to Container App
-        run: |
-          az containerapp identity assign \
-            --name ${{ env.CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --user-assigned ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
-
-      # Uncomment if you need role assignment for Managed Identity
-      # - name: Assign Role to Managed Identity
-      #   run: |
-      #     az role assignment create \
-      #       --assignee ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
-      #       --role "Contributor" \
-      #       --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}
-
 
       - name: Install EF Core CLI
         run: dotnet tool install --global dotnet-ef
