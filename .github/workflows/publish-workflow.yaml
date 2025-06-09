@@ -50,12 +50,12 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --user-assigned ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
 
-      - name: Assign Role to Managed Identity
-        run: |
-          az role assignment create \
-            --assignee ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
-            --role "Contributor" \
-            --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}
+      #- name: Assign Role to Managed Identity
+      #  run: |
+      #    az role assignment create \
+      #      --assignee ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
+      #      --role "Contributor" \
+      #      --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}
 
       - name: Restart Container App to Apply Identity Changes
         run: |
