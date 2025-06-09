@@ -72,3 +72,26 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           environmentVariables: |
             ASPNETCORE_ENVIRONMENT=Development
+
+      - name: Assign User Managed Identity to Container App
+        run: |
+          az containerapp identity assign \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --user-assigned ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
+
+      # Uncomment if you need role assignment for Managed Identity
+      # - name: Assign Role to Managed Identity
+      #   run: |
+      #     az role assignment create \
+      #       --assignee ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
+      #       --role "Contributor" \
+      #       --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}
+
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Apply EF Core Migrations
+        run: |
+          dotnet ef database update --project ams.service.repositories --startup-project ams.web.api
