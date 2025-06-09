@@ -1,4 +1,4 @@
-name: Build and Deploy to Azure Container apps
+name: Build and Deploy to Azure Container Apps
 
 on:
   workflow_dispatch:
@@ -89,6 +89,7 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           containerAppEnvironment: ${{ env.CONTAINER_APP_ENV }}
           environmentVariables: |
+            ConnectionStrings__DefaultConnection=${{ secrets.DATABASE_CONNECTION_STRING }}
             ASPNETCORE_ENVIRONMENT=Development
 
       - name: Restart Container App to Apply Changes
@@ -99,16 +100,3 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             || echo "Restart failed, deployment may still succeed"
         continue-on-error: true
-
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef
-
-      - name: Apply EF Core Migrations
-        run: |
-          export ConnectionStrings__DefaultConnection=${{ secrets.DATABASE_CONNECTION_STRING }}
-          dotnet ef database update \
-            --project src/ams.service.repositories \
-            --startup-project src/ams.web.api \
-            --verbose
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
