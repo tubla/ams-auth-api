@@ -20,7 +20,7 @@ public class AuthenticationController(IJwtService _jwtService, IUserService _use
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        if (await _userService.GetUserByEmailAsync(request.Email) != null)
+        if (await _userService.GetUserByEmailAsync(request.Email, false) != null)
         {
             return BadRequest(new { message = "Email already exists" });
         }

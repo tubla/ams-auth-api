@@ -19,13 +19,15 @@ internal class UserService(IUnitOfWork _unitOfWork) : IUserService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<UserDto?> GetUserByEmailAsync(string email)
+    public async Task<UserDto?> GetUserByEmailAsync(string email, bool failIfNotExists = true)
     {
         if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email cannot be empty", nameof(email));
-
-        var user = await _unitOfWork.UserRepository.GetUserByEmailAsync(email)
-            ?? throw new RecordNotFoundException($"User with email: {email} does not exist");
-
+        var user = await _unitOfWork.UserRepository.GetUserByEmailAsync(email);
+        if (failIfNotExists && user == null)
+        {
+            throw new RecordNotFoundException($"User with email: {email} does not exist");
+        }
+        if (user == null) return null;
         return user.Adapt<UserDto>();
     }
 

@@ -2,7 +2,7 @@
 
 public interface IUserService
 {
-    Task<UserDto?> GetUserByEmailAsync(string email);
+    Task<UserDto?> GetUserByEmailAsync(string email, bool failIfNotExists = true);
     Task<UserDto?> GetUserWithLoginHistoryAsync(int userId);
     Task AddUserAsync(UserDto user);
     Task UpdateUserAsync(UserDto user);
