@@ -82,11 +82,5 @@ jobs:
           containerAppEnvironment: ${{ env.CONTAINER_APP_ENV }}
           userAssignedIdentities: ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
           logsDestination: none
-          environmentVariables: |
-            - name: ConnectionStrings__AmsDbConnection
-              secretRef: database-connection-string
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Development
-          secrets: |
-            - name: database-connection-string
-              value: ${{ secrets.DATABASE_CONNECTION_STRING }}
+          environmentVariables: ConnectionStrings__AmsDbConnection=secretref:database-connection-string ASPNETCORE_ENVIRONMENT=Development
+          secrets: database-connection-string=${{ secrets.DATABASE_CONNECTION_STRING }}
