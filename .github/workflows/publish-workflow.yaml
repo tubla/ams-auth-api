@@ -73,6 +73,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Assign User Managed Identity to Container App
+        run: |
+          az containerapp identity assign \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --user-assigned ${{ secrets.AZURE_MANAGED_IDENTITY_ID }} \
+            || echo "Identity assignment failed, continuing..."
+
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
@@ -80,7 +88,9 @@ jobs:
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           containerAppEnvironment: ${{ env.CONTAINER_APP_ENV }}
-          userAssignedIdentities: ${{ secrets.AZURE_MANAGED_IDENTITY_ID }}
           logsDestination: none
-          environmentVariables: ConnectionStrings__AmsDbConnection=secretref:database-connection-string ASPNETCORE_ENVIRONMENT=Development
-          secrets: database-connection-string=${{ secrets.DATABASE_CONNECTION_STRING }}
+          secrets: |
+            database-connection-string=${{ secrets.DATABASE_CONNECTION_STRING }}
+          environmentVariables: |
+            ConnectionStrings__AmsDbConnection=secretref:database-connection-string
+            ASPNETCORE_ENVIRONMENT=Development
