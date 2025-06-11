@@ -1,7 +1,7 @@
 ﻿namespace ams.service.services
 {
     [Serializable]
-    internal class RecordNotFoundException : Exception
+    public class RecordNotFoundException : Exception
     {
         public RecordNotFoundException()
         {

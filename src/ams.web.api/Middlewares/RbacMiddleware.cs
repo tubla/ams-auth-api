@@ -1,38 +1,50 @@
 ﻿namespace ams.web.api.Middlewares;
 
-internal class RbacMiddleware(RequestDelegate _next)
+internal class RbacMiddleware(RequestDelegate _next, ILogger<RbacMiddleware> _logger)
 {
 
     public async Task Invoke(HttpContext context, IUserService userService, IUserRoleService userRoleService, IRolePermissionService rolePermissionService)
     {
-        var userEmail = context.User.FindFirst(ClaimTypes.Email)?.Value;
-
-        if (!string.IsNullOrEmpty(userEmail))
+        try
         {
-            var user = await userService.GetUserByEmailAsync(userEmail);
-            if (user != null)
+            var userEmail = context.User.FindFirst(ClaimTypes.Email)?.Value;
+            _logger.LogInformation("RBAC Middleware invoked for user: {UserEmail}", userEmail);
+            if (!string.IsNullOrEmpty(userEmail))
             {
-                // Get user roles
-                var roles = await userRoleService.GetRolesForUserAsync(user.UserId);
-
-                // Get permissions for each role
-                var permissions = new HashSet<string>();
-                foreach (var role in roles)
+                var user = await userService.GetUserByEmailAsync(userEmail);
+                if (user != null)
                 {
-                    var rolePermissions = await rolePermissionService.GetPermissionsForRoleAsync(role.RoleId);
-                    foreach (var permission in rolePermissions)
+                    _logger.LogInformation("Retrieved user details for user: {UserEmail}", userEmail);
+                    // Get user roles
+                    var roles = await userRoleService.GetRolesForUserAsync(user.UserId);
+                    _logger.LogInformation("Retrieved roles for user: {UserEmail}", userEmail);
+                    // Get permissions for each role
+                    var permissions = new HashSet<string>();
+                    foreach (var role in roles)
                     {
-                        permissions.Add(permission.PermissionName);
+                        var rolePermissions = await rolePermissionService.GetPermissionsForRoleAsync(role.RoleId);
+                        foreach (var permission in rolePermissions)
+                        {
+                            permissions.Add(permission.PermissionName);
+                        }
                     }
-                }
 
-                // Store roles & permissions in HttpContext for easy access in controllers
-                context.Items["UserRoles"] = roles.Select(r => r.RoleName).ToList();
-                context.Items["UserPermissions"] = permissions;
+                    // Store roles & permissions in HttpContext for easy access in controllers
+                    context.Items["UserRoles"] = roles.Select(r => r.RoleName).ToList();
+                    context.Items["UserPermissions"] = permissions;
+                }
             }
         }
-
-        await _next(context);
+        catch (Exception ex)
+        {
+            _logger.LogError("Exception Type: {ExceptionType}, Message: {Message}",
+                 ex.GetType().Name, ex.Message);
+            throw new RecordNotFoundException(ex.Message);
+        }
+        finally
+        {
+            await _next(context);
+        }
     }
 }
 

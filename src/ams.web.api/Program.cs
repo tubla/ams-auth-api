@@ -74,6 +74,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<RbacMiddleware>();
 // Configure the HTTP request pipeline.
 
