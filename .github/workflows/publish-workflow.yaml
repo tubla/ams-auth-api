@@ -89,5 +89,6 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           containerAppEnvironment: ${{ env.CONTAINER_APP_ENV }}
           logsDestination: none
-          secrets: database-connection-string=${{ secrets.DATABASE_CONNECTION_STRING }}
-          environmentVariables: ConnectionStrings__AmsDbConnection=secretref:database-connection-string,ASPNETCORE_ENVIRONMENT=Development
+          environmentVariables: |
+            ConnectionStrings__AmsDbConnection=${{ secrets.DATABASE_CONNECTION_STRING }}
+            ASPNETCORE_ENVIRONMENT=Development
